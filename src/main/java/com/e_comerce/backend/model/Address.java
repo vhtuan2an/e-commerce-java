@@ -6,12 +6,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "addresses")
@@ -38,8 +41,9 @@ public class Address {
     @Size(min = 5, max = 10, message = "Postal code must be between 5 and 10 characters")
     private String postalCode;
 
-    @ManyToMany(mappedBy = "addresses")
-    private Set<User> users;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Address(String street, String city, String country, String postalCode) {
         this.street = street;

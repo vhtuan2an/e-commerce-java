@@ -44,7 +44,8 @@ public class CategoryController {
             required = false) 
             Integer pageSize,
         @RequestParam (name = "sortBy", 
-            defaultValue = AppConstants.SORT_BY_DEFAULT, 
+            // defaultValue = AppConstants.SORT_BY_DEFAULT, 
+            defaultValue = "categoryId",
             required = false) 
             String sortBy,
         @RequestParam (name = "sortOrder", 
@@ -57,7 +58,6 @@ public class CategoryController {
     }
 
     @PostMapping("/admin/categories")
-    
     public ResponseEntity<CategoryDTO> addCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO savedCategory = categoryService.addCategory(categoryDTO);
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);

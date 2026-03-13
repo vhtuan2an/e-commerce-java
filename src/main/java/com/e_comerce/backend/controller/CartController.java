@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -47,5 +49,23 @@ public class CartController {
     public ResponseEntity<CartDTO> getUserCart() {
         CartDTO cartDTO = cartService.getUserCart();
         return new ResponseEntity<>(cartDTO, HttpStatus.FOUND);
+    }
+
+    @PutMapping("/product/{productId}/quantity/{quantity}")
+    public ResponseEntity<CartDTO> updateProductQuantity(
+        @PathVariable Long productId, 
+        @PathVariable Integer quantity
+    ) {
+        CartDTO cartDTO = cartService.updateProductQuantity(productId, quantity);
+        return new ResponseEntity<>(cartDTO, HttpStatus.OK);
+    }
+    
+    @DeleteMapping("/{cartId}/product/{productId}")
+    public ResponseEntity<String> deleteProductFromCart(
+        @PathVariable Long cartId, 
+        @PathVariable Long productId
+    ) {
+        String response = cartService.deleteProductFromCart(cartId, productId);
+        return new ResponseEntity<String>(response, HttpStatus.OK);
     }
 }

@@ -53,7 +53,7 @@ public class ProductController {
             required = false)
             Integer pageSize,
         @RequestParam (name = "sortBy", 
-            defaultValue = AppConstants.SORT_BY_DEFAULT,
+            // defaultValue = AppConstants.SORT_BY_DEFAULT,
             required = false)
             String sortBy,
         @RequestParam (name = "sortOrder", 

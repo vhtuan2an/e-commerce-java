@@ -22,10 +22,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.e_comerce.backend.exception.APIException;
 import com.e_comerce.backend.exception.ResourceNotFoundException;
+import com.e_comerce.backend.model.Cart;
+import com.e_comerce.backend.model.CartItem;
 import com.e_comerce.backend.model.Category;
 import com.e_comerce.backend.model.Product;
+import com.e_comerce.backend.payload.dto.CartDTO;
+import com.e_comerce.backend.payload.dto.CartItemDTO;
 import com.e_comerce.backend.payload.dto.ProductDTO;
 import com.e_comerce.backend.payload.response.ProductResponse;
+import com.e_comerce.backend.repository.CartRepository;
 import com.e_comerce.backend.repository.CategoryRepository;
 import com.e_comerce.backend.repository.ProductRepository;
 
@@ -43,6 +48,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private CartRepository cartRepository;
 
     @Value("${project.image}")
     private String imagePath;
@@ -154,6 +162,25 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product updatedProduct = productRepository.save(existingProduct);
+
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+
+        carts.forEach(cart -> {
+            CartItem cartItem = cart.getCartItems().stream()
+                     .filter(ci -> ci.getProduct().getProductId().equals(productId))
+                     .findFirst()
+                     .orElseThrow(() -> new ResourceNotFoundException("CartItem", "productId", productId));                
+
+            double oldItemTotal = cartItem.getProductPrice() * cartItem.getQuantity();
+            cartItem.setDiscount(updatedProduct.getDiscount());
+            cartItem.setProductPrice(updatedProduct.getSpecialPrice());
+
+            double newItemTotal = updatedProduct.getSpecialPrice() * cartItem.getQuantity();
+            cart.setTotalPrice(cart.getTotalPrice() - oldItemTotal + newItemTotal);
+
+            cartRepository.save(cart);
+        }); 
+
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
