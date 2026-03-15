@@ -49,8 +49,8 @@ public class CategoryController {
             required = false) 
             String sortBy,
         @RequestParam (name = "sortOrder", 
-            defaultValue = AppConstants.SORT_ORDER_DEFAULT, 
-            required = false) 
+            defaultValue = AppConstants.SORT_ORDER_DEFAULT,
+            required = false)
             String sortOrder
     ) {
         CategoryResponse categoryResponse = categoryService.getAllCategories(pageNumber, pageSize, sortBy, sortOrder);

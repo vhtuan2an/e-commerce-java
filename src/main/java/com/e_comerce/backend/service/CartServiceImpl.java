@@ -54,7 +54,7 @@ public class CartServiceImpl implements CartService {
             throw new APIException("Product already exists in cart");
         }
 
-        if (product.getQuantity() < quantity) {
+        if (product.getQuantity() == null || product.getQuantity() < quantity) {
             throw new APIException("Requested quantity exceeds available stock");
         }
 
@@ -135,7 +135,10 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartDTO toCartDTO(Cart cart) {
-        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setCartId(cart.getCartId());
+        cartDTO.setTotalPrice(cart.getTotalPrice());
+
         List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
                 .map(item -> {
                     CartItemDTO cartItemDTO = new CartItemDTO();
