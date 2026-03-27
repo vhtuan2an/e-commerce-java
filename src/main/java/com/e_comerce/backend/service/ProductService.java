@@ -10,7 +10,7 @@ import com.e_comerce.backend.payload.response.ProductResponse;
 
 public interface ProductService {
     ProductDTO addProduct(ProductDTO productDTO, Long categoryId);
-    ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+    ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String query, String category);
     ProductResponse getProductsByCategory(Long categoryId);
     ProductResponse searchProducts(String query);
     ProductDTO updateProduct(Long productId, ProductDTO productDTO);

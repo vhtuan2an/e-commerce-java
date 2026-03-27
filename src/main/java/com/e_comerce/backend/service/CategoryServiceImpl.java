@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -64,6 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (existingCategory.isPresent()) {
             throw new APIException("Category with name '" + categoryDTO.getCategoryName() + "' already exists");
         }
+        
         Category category = modelMapper.map(categoryDTO, Category.class);
         Category savedCategory = categoryRepository.save(category);
         return modelMapper.map(savedCategory, CategoryDTO.class);
@@ -92,6 +94,5 @@ public class CategoryServiceImpl implements CategoryService {
         } else {
             throw new ResourceNotFoundException("Category", "categoryId", categoryId);
         }
-    }
-
+    }  
 }

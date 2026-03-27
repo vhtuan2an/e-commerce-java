@@ -25,7 +25,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
-    @Size(min = 5, message = "Category name must be at least 5 characters long")
+    @Size(min = 3, message = "Category name must be at least 3 characters long")
     private String categoryName;
 
     // @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

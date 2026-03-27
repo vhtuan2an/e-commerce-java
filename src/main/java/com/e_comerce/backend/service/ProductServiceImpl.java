@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,6 +56,14 @@ public class ProductServiceImpl implements ProductService {
     @Value("${project.image}")
     private String imagePath;
 
+    private static final String DEFAULT_IMAGE_URL = "http://localhost:8080/images/default-product.jpg";
+
+    private ProductDTO convertToDTO(Product product) {
+        ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+        productDTO.setImage(DEFAULT_IMAGE_URL);
+        return productDTO;
+    }
+
     @Override
     public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
 
@@ -81,21 +90,35 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = modelMapper.map(productDTO, Product.class);
         product.setCategory(category);
-        product.setImage("default-image.jpg");
+        product.setImage("http://localhost:8080/images/default-image.jpg");
         double specialPrice = product.getPrice() - (product.getPrice() * product.getDiscount() / 100);
-        product.setSpecialPrice(specialPrice);
+        product.setSpecialPrice(specialPrice);  
         Product savedProduct = productRepository.save(product);
-        return modelMapper.map(savedProduct, ProductDTO.class);
+        return convertToDTO(savedProduct);
     }
 
     @Override
-    public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder, String query, String category) {
         Sort sort = sortOrder.equalsIgnoreCase("asc")
-            ? Sort.by(sortBy). ascending()
+            ? Sort.by(sortBy).ascending()
             : Sort.by(sortBy).descending();
         
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Product> productsPage = productRepository.findAll(pageDetails);
+        Specification<Product> spec = (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.conjunction();
+
+        if (query != null && !query.isEmpty()) {
+            spec = spec.and((root, query1, criteriaBuilder) -> 
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + query.toLowerCase() + "%")
+            );
+        }
+
+        if (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) {
+            spec = spec.and((root, query1, criteriaBuilder) -> 
+                criteriaBuilder.equal(root.get("category").get("categoryName"), category)
+            );
+        }
+        
+        Page<Product> productsPage = productRepository.findAll(spec, pageDetails);
         
         if (productsPage.isEmpty()) {
             throw new APIException("No product found");
@@ -104,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productsPage.getContent();
         
         List<ProductDTO> productDTOs = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .map(this::convertToDTO)
                 .toList();
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDTOs);
@@ -125,7 +148,7 @@ public class ProductServiceImpl implements ProductService {
             throw new APIException("No products found for category with id " + categoryId);
         }
         List<ProductDTO> productDTOs = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .map(this::convertToDTO)
                 .toList();
                 
         ProductResponse productResponse = new ProductResponse();
@@ -140,7 +163,7 @@ public class ProductServiceImpl implements ProductService {
             throw new APIException("No products found matching query: " + query);
         }
         List<ProductDTO> productDTOs = products.stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .map(this::convertToDTO)
                 .toList();
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(productDTOs);
@@ -181,7 +204,7 @@ public class ProductServiceImpl implements ProductService {
             cartRepository.save(cart);
         }); 
 
-        return modelMapper.map(updatedProduct, ProductDTO.class);
+        return convertToDTO(updatedProduct);
     }
 
     @Override
@@ -189,7 +212,7 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(productId)
             .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         productRepository.delete(existingProduct);
-        return modelMapper.map(existingProduct, ProductDTO.class);
+        return convertToDTO(existingProduct);
     }
 
     @Override
@@ -203,6 +226,6 @@ public class ProductServiceImpl implements ProductService {
         
         existingProduct.setImage(imageUrl);
         Product updatedProduct = productRepository.save(existingProduct);
-        return modelMapper.map(updatedProduct, ProductDTO.class);
+        return convertToDTO(updatedProduct);
     }    
 }

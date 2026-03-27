@@ -10,11 +10,16 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "products")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
@@ -27,16 +32,20 @@ public class Product {
     private String productName;
     private String description;
     private String image;
-    private double price;
-    private double specialPrice;
-    private double discount;
+    private Double price;
+    private Double specialPrice;
+    private Double discount;
     private Integer quantity;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Category category;
 
     @ManyToOne
     @JoinColumn(name = "seller_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 }
