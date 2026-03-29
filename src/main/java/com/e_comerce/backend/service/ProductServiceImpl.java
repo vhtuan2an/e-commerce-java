@@ -65,16 +65,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO addProduct(ProductDTO productDTO, Long categoryId) {
+    public ProductDTO addProduct(ProductDTO productDTO) {
+        Long categoryId = productDTO.getCategoryId();
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
-        
+
         Optional<Product> existingProduct = productRepository.findByProductName(productDTO.getProductName());
         if (existingProduct.isPresent()) {
             throw new APIException("Product with the same name already exists");
         }
-        
+
         // boolean isProductExists = false;
         // List<Product> products = category.getProducts();
         // for (Product product : products) {
@@ -92,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
         product.setImage("http://localhost:8080/images/default-image.jpg");
         double specialPrice = product.getPrice() - (product.getPrice() * product.getDiscount() / 100);
-        product.setSpecialPrice(specialPrice);  
+        product.setSpecialPrice(specialPrice);
         Product savedProduct = productRepository.save(product);
         return convertToDTO(savedProduct);
     }

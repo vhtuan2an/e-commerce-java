@@ -35,10 +35,9 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-    @PostMapping("/admin/{categoryId}/product")
-    public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO, 
-                                                @PathVariable Long categoryId) {
-        ProductDTO saveProductDTO = productService.addProduct(productDTO, categoryId);
+    @PostMapping("/admin/product")
+    public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO) {
+        ProductDTO saveProductDTO = productService.addProduct(productDTO);
         return new ResponseEntity<>(saveProductDTO, HttpStatus.CREATED);
     }
 
