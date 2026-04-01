@@ -1,5 +1,6 @@
 package com.e_comerce.backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +31,8 @@ public class Product {
 
     @NotBlank(message = "Product name is required")
     private String productName;
+
+    @Column(length = 1000)
     private String description;
     private String image;
     private Double price;
